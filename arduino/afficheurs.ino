@@ -129,6 +129,21 @@ void clearCTL(){
   on(PIN_CTL_4);
 }
 
+void clearAllSeg(){
+  off(PIN_A);
+  off(PIN_B);
+  off(PIN_C);
+  off(PIN_D);
+  off(PIN_E);
+  off(PIN_F);
+  off(PIN_G);
+}
+
+void clearScreen(){
+  clearCTL();
+  clearAllSeg();
+}
+
 void activateCTL(int num){
   switch(num) {
     case 1:
@@ -170,70 +185,46 @@ void setAll(){
   clearCTL();
 }
 
+void setSeg(int seg, int screen){
+  clearScreen();
+  on(seg);
+  activateCTL(screen);
+  delay(BLINK_DELAY);
+}
+
 void loadingStep(int s){
-  clearCTL();
-  off(PIN_A);
-  off(PIN_B);
-  off(PIN_C);
-  off(PIN_D);
-  off(PIN_E);
-  off(PIN_F);
-  off(PIN_G);
+  clearScreen();
   switch(s) {
     case 0:
-      on(PIN_A);
-      activateCTL(1);
+      setSeg(PIN_A, 1);
+      setSeg(PIN_D, 4);
       break;
     case 1:
-      on(PIN_B);
-      activateCTL(1);
+      setSeg(PIN_B, 1);
+      setSeg(PIN_E, 4);
       break;
     case 2:
-      on(PIN_C);
-      activateCTL(1);
+      setSeg(PIN_C, 1);
+      setSeg(PIN_F, 4);
       break;
     case 3:
-      on(PIN_D);
-      activateCTL(1);
+      setSeg(PIN_D, 1);
+      setSeg(PIN_A, 4);
       break;
     case 4:
-      on(PIN_D);
-      activateCTL(2);
+      setSeg(PIN_D, 2);
+      setSeg(PIN_A, 3);
       break;
     case 5:
-      on(PIN_D);
-      activateCTL(3);
-      break;
-    case 6:
-      on(PIN_D);
-      activateCTL(4);
-      break;
-    case 7:
-      on(PIN_E);
-      activateCTL(4);
-      break;
-    case 8:
-      on(PIN_F);
-      activateCTL(4);
-      break;
-    case 9:
-      on(PIN_A);
-      activateCTL(4);
-      break;
-    case 10:
-      on(PIN_A);
-      activateCTL(3);
-      break;
-    case 11:
-      on(PIN_A);
-      activateCTL(2);
+      setSeg(PIN_D, 3);
+      setSeg(PIN_A, 2);
       break;
    }
 }
 
 void printTime() {
   if(! timeSet) {
-   loadingStep((millis() / LOADING_DELAY)%12);
+   loadingStep((millis() / LOADING_DELAY)%6);
   } else {
     int cur_minutes = ((millis() + deltaTime) / 60000)%3600;
     int minutes = cur_minutes % 60;
@@ -262,7 +253,7 @@ int mode = 0;
 
 void loop() {
   if (Serial.available() > 0 ) {
-    delay(50);
+    delay(10);
     long temp = 0;
     boolean isClock = false, neg = false, cont = true;
     if (Serial.peek() == 'H') {
@@ -278,12 +269,10 @@ void loop() {
         neg = true; 
         Serial.read();
       }
-      Serial.println("Reading");
       while(Serial.available() > 0) {
         temp *= 10;
         temp += Serial.read() - '0';
       }
-      Serial.println("Done");
       if (neg) {
         temp *= -1; 
       }

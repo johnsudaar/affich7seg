@@ -8,8 +8,8 @@ puts "Sending on "+serial
 sp = SerialPort.new serial, 9600
 
 puts "Reset"
-sp.write "R"
-sleep 4
+sp.write "I"
+sleep 3
 while true do
   ping = Net::Ping::HTTP.new("http://google.com")
   if ping.ping?
@@ -17,5 +17,5 @@ while true do
    puts "Ping to google.com : #{data}ms"
    sp.write data.to_s
   end
-  sleep(10)
+  sleep(1)
 end
