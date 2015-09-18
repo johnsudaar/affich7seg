@@ -14,7 +14,7 @@ while true do
   ping = Net::Ping::HTTP.new("http://google.com")
   if ping.ping?
    data = (ping.duration * 1000).to_i
-   puts data
+   puts "Ping to google.com : #{data}ms"
    sp.write data.to_s
   end
   sleep(10)

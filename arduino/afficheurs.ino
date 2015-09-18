@@ -150,13 +150,13 @@ void printNumToScreen(int num, int ctl) {
   clearCTL();
   printTo7Seg(num);
   activateCTL(ctl);
+  delay(BLINK_DELAY);
 }
 
 void printNum(int num) {
   for (int i = 1; i <= USED_DISPLAY; i++){
     printNumToScreen(num%10, i);
     num /= 10;
-    delay(BLINK_DELAY);
   }
   clearCTL();
 }
@@ -164,13 +164,14 @@ void printNum(int num) {
 void setAll(){
   for(int i = 1; i<= 4 ; i++) {
     clearCTL(); 
-    delay(BLINK_DELAY);
     activateCTL(i);
+    delay(BLINK_DELAY);
   }
   clearCTL();
 }
 
 void loadingStep(int s){
+  clearCTL();
   off(PIN_A);
   off(PIN_B);
   off(PIN_C);
@@ -198,6 +199,7 @@ void loadingStep(int s){
       on(PIN_F);
       break;
    }
+   setAll();
 }
 
 void printTime() {
@@ -230,34 +232,42 @@ void setup() {
 int mode = 0;
 
 void loop() {
-  long temp;
   if (Serial.available() > 0 ) {
-    temp = Serial.parseFloat();
-    if (mode == 0) {
-      if (temp == -1) {
-        mode = 1;
-        Serial.println("Clock mode activated, awaiting synchro");
-      } else {
-        Serial.println("Going into display mode");
-        mode = 2;
-        received = temp;
-        Serial.print("Received: ");
-        Serial.println(received);
+    delay(50);
+    long temp = 0;
+    boolean isClock = false, neg = false, cont = true;
+    if (Serial.peek() == 'H') {
+      isClock = true;
+      Serial.read();
+    }
+    if (Serial.peek() ==  'I') {
+      while(Serial.available() > 0) {
+        Serial.read();
       }
-    } else if (mode == 1){
-     deltaTime = (temp*1000 - millis());
-     timeSet = true;
-     Serial.print("Clock set to ");
-     Serial.print(temp / 60);
-     Serial.print(" : ");
-     Serial.println(temp % 60);
     } else {
-      received = temp;
-      Serial.print("Printing : ");
-      Serial.println(received);
+      if (Serial.peek() == '-') {
+        neg = true; 
+        Serial.read();
+      }
+      Serial.println("Reading");
+      while(Serial.available() > 0) {
+        temp *= 10;
+        temp += Serial.read() - '0';
+      }
+      Serial.println("Done");
+      if (neg) {
+        temp *= -1; 
+      }
+      if(isClock) {
+        temp *= 1000;
+        received = -1;
+        deltaTime = temp - millis();
+        timeSet = true;
+      } else {
+        received = temp;
+      }
     }
   }
-  
   if (received < 0 ){
     printTime();
   } else {

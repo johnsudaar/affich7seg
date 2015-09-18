@@ -15,7 +15,7 @@ gmail = Gmail.new(username,userPassword)
 
 sp = SerialPort.new serial, 9600
 
-sp.write "R"
+sp.write "I"
 sleep 3
 
 old = -1
