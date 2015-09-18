@@ -202,6 +202,67 @@ void loadingStep(int s){
    setAll();
 }
 
+void loadingStep2(int s){
+  clearCTL();
+  off(PIN_A);
+  off(PIN_B);
+  off(PIN_C);
+  off(PIN_D);
+  off(PIN_E);
+  off(PIN_F);
+  off(PIN_G);
+  switch(s) {
+    case 0:
+      on(PIN_A);
+      activateCTL(1);
+      break;
+    case 1:
+      on(PIN_B);
+      activateCTL(1);
+      break;
+    case 2:
+      on(PIN_C);
+      activateCTL(1);
+      break;
+    case 3:
+      on(PIN_D);
+      activateCTL(1);
+      break;
+    case 4:
+      on(PIN_E);
+      activateCTL(2);
+      break;
+    case 5:
+      on(PIN_E);
+      activateCTL(3);
+      break;
+    case 6:
+      on(PIN_E);
+      activateCTL(4);
+      break;
+    case 7:
+      on(PIN_F);
+      activateCTL(4);
+      break;
+    case 8:
+      on(PIN_G);
+      activateCTL(4);
+      break;
+    case 9:
+      on(PIN_A);
+      activateCTL(4);
+      break;
+    case 10:
+      on(PIN_A);
+      activateCTL(3);
+      break;
+    case 11:
+      on(PIN_A);
+      activateCTL(2);
+      break;
+   }
+}
+
 void printTime() {
   if(! timeSet) {
    loadingStep((millis() / LOADING_DELAY)%6);
