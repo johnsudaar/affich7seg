@@ -12,7 +12,7 @@ int PIN_CTL_4 = 13;
 
 int BLINK_DELAY = 4;
 int USED_DISPLAY = 4;
-int LOADING_DELAY = 100;
+int LOADING_DELAY = 65;
 
 
 long received = -1;
@@ -182,38 +182,6 @@ void loadingStep(int s){
   switch(s) {
     case 0:
       on(PIN_A);
-      break;
-    case 1:
-      on(PIN_B);
-      break;
-    case 2:
-      on(PIN_C);
-      break;
-    case 3:
-      on(PIN_D);
-      break;
-    case 4:
-      on(PIN_E);
-      break;
-    case 5:
-      on(PIN_F);
-      break;
-   }
-   setAll();
-}
-
-void loadingStep2(int s){
-  clearCTL();
-  off(PIN_A);
-  off(PIN_B);
-  off(PIN_C);
-  off(PIN_D);
-  off(PIN_E);
-  off(PIN_F);
-  off(PIN_G);
-  switch(s) {
-    case 0:
-      on(PIN_A);
       activateCTL(1);
       break;
     case 1:
@@ -229,23 +197,23 @@ void loadingStep2(int s){
       activateCTL(1);
       break;
     case 4:
-      on(PIN_E);
+      on(PIN_D);
       activateCTL(2);
       break;
     case 5:
-      on(PIN_E);
+      on(PIN_D);
       activateCTL(3);
       break;
     case 6:
-      on(PIN_E);
+      on(PIN_D);
       activateCTL(4);
       break;
     case 7:
-      on(PIN_F);
+      on(PIN_E);
       activateCTL(4);
       break;
     case 8:
-      on(PIN_G);
+      on(PIN_F);
       activateCTL(4);
       break;
     case 9:
@@ -265,7 +233,7 @@ void loadingStep2(int s){
 
 void printTime() {
   if(! timeSet) {
-   loadingStep((millis() / LOADING_DELAY)%6);
+   loadingStep((millis() / LOADING_DELAY)%12);
   } else {
     int cur_minutes = ((millis() + deltaTime) / 60000)%3600;
     int minutes = cur_minutes % 60;
