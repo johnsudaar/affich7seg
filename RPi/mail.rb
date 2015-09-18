@@ -12,7 +12,12 @@ system "stty echo"
 
 puts "Sending on "+serial
 gmail = Gmail.new(username,userPassword)
+
 sp = SerialPort.new serial, 9600
+
+sp.write "R"
+sleep 3
+
 old = -1
 while true do
   nums = gmail.mailbox("INBOX").count(:unread)

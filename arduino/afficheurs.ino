@@ -12,6 +12,12 @@ int PIN_CTL_4 = 13;
 
 int BLINK_DELAY = 4;
 int USED_DISPLAY = 4;
+int LOADING_DELAY = 100;
+
+
+long received = -1;
+long deltaTime = 0;
+boolean timeSet = false;
 
 void on(int pin) {
   digitalWrite(pin, HIGH);
@@ -123,10 +129,8 @@ void clearCTL(){
   on(PIN_CTL_4);
 }
 
-void printNumToScreen(int num, int ctl) {
-  clearCTL();
-  printTo7Seg(num);
-  switch(ctl) {
+void activateCTL(int num){
+  switch(num) {
     case 1:
       off(PIN_CTL_1);
       break;
@@ -139,7 +143,13 @@ void printNumToScreen(int num, int ctl) {
     case 4:
       off(PIN_CTL_4);
       break;
-  } 
+  }
+}
+
+void printNumToScreen(int num, int ctl) {
+  clearCTL();
+  printTo7Seg(num);
+  activateCTL(ctl);
 }
 
 void printNum(int num) {
@@ -147,6 +157,57 @@ void printNum(int num) {
     printNumToScreen(num%10, i);
     num /= 10;
     delay(BLINK_DELAY);
+  }
+  clearCTL();
+}
+
+void setAll(){
+  for(int i = 1; i<= 4 ; i++) {
+    clearCTL(); 
+    delay(BLINK_DELAY);
+    activateCTL(i);
+  }
+  clearCTL();
+}
+
+void loadingStep(int s){
+  off(PIN_A);
+  off(PIN_B);
+  off(PIN_C);
+  off(PIN_D);
+  off(PIN_E);
+  off(PIN_F);
+  off(PIN_G);
+  switch(s) {
+    case 0:
+      on(PIN_A);
+      break;
+    case 1:
+      on(PIN_B);
+      break;
+    case 2:
+      on(PIN_C);
+      break;
+    case 3:
+      on(PIN_D);
+      break;
+    case 4:
+      on(PIN_E);
+      break;
+    case 5:
+      on(PIN_F);
+      break;
+   }
+}
+
+void printTime() {
+  if(! timeSet) {
+   loadingStep((millis() / LOADING_DELAY)%6);
+  } else {
+    int cur_minutes = ((millis() + deltaTime) / 60000)%3600;
+    int minutes = cur_minutes % 60;
+    int heures = cur_minutes / 60;
+    printNum(heures * 100 + minutes);
   }
 }
 
@@ -166,25 +227,42 @@ void setup() {
   Serial.begin(9600);
 }
 
-int received = -1;
+int mode = 0;
 
 void loop() {
+  long temp;
   if (Serial.available() > 0 ) {
-    received = Serial.parseInt();
-    if (received < 0 ) {
-      Serial.println("Clock mode");
+    temp = Serial.parseFloat();
+    if (mode == 0) {
+      if (temp == -1) {
+        mode = 1;
+        Serial.println("Clock mode activated, awaiting synchro");
+      } else {
+        Serial.println("Going into display mode");
+        mode = 2;
+        received = temp;
+        Serial.print("Received: ");
+        Serial.println(received);
+      }
+    } else if (mode == 1){
+     deltaTime = (temp*1000 - millis());
+     timeSet = true;
+     Serial.print("Clock set to ");
+     Serial.print(temp / 60);
+     Serial.print(" : ");
+     Serial.println(temp % 60);
     } else {
-      Serial.print("Using : ");
+      received = temp;
+      Serial.print("Printing : ");
       Serial.println(received);
     }
   }
-  int cur_seconds = (millis() / 1000)%3600;
-  int seconds = cur_seconds % 60;
-  int minutes = cur_seconds / 60;
+  
   if (received < 0 ){
-    printNum(minutes * 100 + seconds);
+    printTime();
   } else {
     printNum(received);
   }
 }
+
 

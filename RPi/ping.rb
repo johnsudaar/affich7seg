@@ -6,6 +6,10 @@ serial = ARGV[0] || "/dev/ttyACM1"
 
 puts "Sending on "+serial
 sp = SerialPort.new serial, 9600
+
+puts "Reset"
+sp.write "R"
+sleep 4
 while true do
   ping = Net::Ping::HTTP.new("http://google.com")
   if ping.ping?
